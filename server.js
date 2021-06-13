@@ -20,6 +20,7 @@ app.use(express.json());
 
 // mongoose setup
 const mongoose = require("mongoose");
+const AutoIncrement = require("mongoose-sequence")(mongoose);
 mongoose.connect(
   `mongodb+srv://${process.env.MONGO_DB_USER}:${process.env.MONGO_DB_PASSWORD}@cluster0.wqup4.mongodb.net/urlshortener?retryWrites=true&w=majority`,
   {
@@ -43,8 +44,9 @@ const { Schema } = mongoose;
 
 const urlSchema = new Schema({
   original_url: { type: String, required: true },
-  short_url: { type: String, required: true },
 });
+
+urlSchema.plugin(AutoIncrement, { inc_field: "short_url" });
 
 let URL = mongoose.model("URL", urlSchema);
 
@@ -56,9 +58,6 @@ app.get("/api/shorturl/:id", async (req, res) => {
   }
   res.send({ error: "invalid shorturl id", url });
 });
-
-const generateRandomUrlId = () =>
-  new Date().getTime().toString(36) + Math.random().toString(8).slice(2);
 
 app.post("/api/shorturl", async (req, res) => {
   let url = req.body.url;
@@ -75,9 +74,9 @@ app.post("/api/shorturl", async (req, res) => {
     urlResponse = await fetch(url);
     urlResponse = {
       original_url: url,
-      short_url: `${generateRandomUrlId()}`,
     };
-    await URL.create(urlResponse);
+    let result = await URL.create(urlResponse);
+    urlResponse.short_url = result.short_url;
   } catch (error) {
     urlResponse = `invalid url`;
   }
