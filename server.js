@@ -81,7 +81,7 @@ app.post("/api/shorturl", async (req, res) => {
     urlResponse = `invalid url`;
   }
 
-  res.send({ urlResponse });
+  res.send(urlResponse);
 });
 
 app.listen(port, function () {
