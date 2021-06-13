@@ -61,7 +61,7 @@ const generateRandomUrlId = () =>
   new Date().getTime().toString(36) + Math.random().toString(8).slice(2);
 
 app.post("/api/shorturl", async (req, res) => {
-  let url = req.body.original_url;
+  let url = req.body.url;
 
   if (!url) {
     res.status(400);
