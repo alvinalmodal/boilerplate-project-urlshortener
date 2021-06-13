@@ -1,8 +1,10 @@
 require("dotenv").config();
+const urlModule = require("url");
 const express = require("express");
 const cors = require("cors");
 const app = express();
 const fetch = require("node-fetch");
+const dns = require("dns");
 
 // Basic Configuration
 const port = process.env.PORT || 3000;
@@ -69,7 +71,8 @@ app.post("/api/shorturl", async (req, res) => {
   }
 
   // check if valid url
-  let urlResponse = "invalid url";
+  let urlResponse = { error: "Invalid URL" };
+
   try {
     urlResponse = await fetch(url);
     urlResponse = {
@@ -78,7 +81,7 @@ app.post("/api/shorturl", async (req, res) => {
     let result = await URL.create(urlResponse);
     urlResponse.short_url = result.short_url;
   } catch (error) {
-    urlResponse = `invalid url`;
+    urlResponse = { error: "Invalid URL" };
   }
 
   res.send(urlResponse);
